@@ -86,7 +86,7 @@ const Profile: React.FC<ProfileProps> = ({ repositories }) => {
   useEffect(() => {
     const email = localStorage.getItem("email");
     if (!email) return;
-  
+
     fetch("/api/getuser", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -215,9 +215,15 @@ const Profile: React.FC<ProfileProps> = ({ repositories }) => {
         const next = new Date(now + 5 * 60 * 1000);
         setNextFetchTime(next.toLocaleTimeString());
 
-        const rank =
-          contributors.findIndex((c: any) => c.login === formData.githubId) + 1;
-        setContributorRank(rank > 0 ? rank : null);
+        if (Array.isArray(contributors)) {
+          const rank =
+            contributors.findIndex((c: any) => c.login === formData.githubId) +
+            1;
+          setContributorRank(rank > 0 ? rank : null);
+        } else {
+          console.error("contributors is not an array:", contributors);
+          setContributorRank(null);
+        }
 
         const formatMap = (map: Record<string, number>) =>
           Object.entries(map).map(([date, count]) => ({ date, count }));
@@ -247,26 +253,32 @@ const Profile: React.FC<ProfileProps> = ({ repositories }) => {
     { name: "Commits", value: commitDetails.length },
     { name: "PR Merges", value: mergeDetails.length },
   ];
-  const pieColors = ["#56d364", "#1f6feb"]; 
+  const pieColors = ["#56d364", "#1f6feb"];
 
   return (
     <div className="min-h-screen bg-[#0d1117] p-6 text-[#c9d1d9] font-sans">
-      <Toaster 
+      <Toaster
         toastOptions={{
           style: {
-            background: '#161b22',
-            color: '#c9d1d9',
-            border: '1px solid #30363d'
-          }
+            background: "#161b22",
+            color: "#c9d1d9",
+            border: "1px solid #30363d",
+          },
         }}
       />
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 border-b border-[#30363d] pb-6">
         <div>
-          <h1 className="text-2xl font-semibold text-[#e6edf3]">Welcome, {formData.username || 'Developer'}</h1>
-          {nextFetchTime && <p className="text-sm text-[#7d8590]">Next data refresh: {nextFetchTime}</p>}
+          <h1 className="text-2xl font-semibold text-[#e6edf3]">
+            Welcome, {formData.username || "Developer"}
+          </h1>
+          {nextFetchTime && (
+            <p className="text-sm text-[#7d8590]">
+              Next data refresh: {nextFetchTime}
+            </p>
+          )}
         </div>
-        
+
         <div className="flex items-center gap-3">
           <div className="flex items-center text-sm bg-[#161b22] px-3 py-1.5 rounded-md border border-[#30363d]">
             <span className="text-[#7d8590] mr-1">⭐</span>
@@ -276,8 +288,8 @@ const Profile: React.FC<ProfileProps> = ({ repositories }) => {
             <span className="text-[#7d8590] mr-1">🍴</span>
             <span className="font-medium">{forks}</span>
           </div>
-          <button 
-            onClick={handleLogout} 
+          <button
+            onClick={handleLogout}
             className="ml-2 text-sm px-3 py-1.5 rounded-md bg-[#21262d] hover:bg-[#30363d] border border-[#363b42] text-[#f85149] hover:text-white transition-colors"
           >
             Sign out
@@ -285,31 +297,41 @@ const Profile: React.FC<ProfileProps> = ({ repositories }) => {
         </div>
       </div>
 
-      <TopStatsBlock 
-        topLanguages={topLanguages} 
-        estimatedTime={estimatedTime} 
-        contributorRank={contributorRank} 
-        nextFetchTime={nextFetchTime} 
+      <TopStatsBlock
+        topLanguages={topLanguages}
+        estimatedTime={estimatedTime}
+        contributorRank={contributorRank}
+        nextFetchTime={nextFetchTime}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="bg-[#161b22] p-5 rounded-lg border border-[#30363d]">
-          <h2 className="text-lg font-semibold mb-4 text-[#e6edf3] border-b border-[#30363d] pb-3">Profile Settings</h2>
+          <h2 className="text-lg font-semibold mb-4 text-[#e6edf3] border-b border-[#30363d] pb-3">
+            Profile Settings
+          </h2>
           <div className="space-y-4">
             <label className="block">
-              <span className="text-sm text-[#7d8590] block mb-1">Display name</span>
+              <span className="text-sm text-[#7d8590] block mb-1">
+                Display name
+              </span>
               <input
                 value={formData.username}
-                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, username: e.target.value })
+                }
                 className="w-full px-3 py-2 rounded bg-[#0d1117] border border-[#30363d] text-[#c9d1d9] focus:border-[#1f6feb] focus:ring-1 focus:ring-[#1f6feb] outline-none transition"
                 placeholder="Your name"
               />
             </label>
             <label className="block">
-              <span className="text-sm text-[#7d8590] block mb-1">GitHub username</span>
+              <span className="text-sm text-[#7d8590] block mb-1">
+                GitHub username
+              </span>
               <input
                 value={formData.githubId}
-                onChange={(e) => setFormData({ ...formData, githubId: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, githubId: e.target.value })
+                }
                 className="w-full px-3 py-2 rounded bg-[#0d1117] border border-[#30363d] text-[#c9d1d9] focus:border-[#1f6feb] focus:ring-1 focus:ring-[#1f6feb] outline-none transition"
                 placeholder="GitHub username"
               />
@@ -324,7 +346,9 @@ const Profile: React.FC<ProfileProps> = ({ repositories }) => {
         </div>
 
         <div className="bg-[#161b22] p-5 rounded-lg border border-[#30363d] flex flex-col">
-          <h2 className="text-lg font-semibold mb-4 text-[#e6edf3] border-b border-[#30363d] pb-3">Profile Preview</h2>
+          <h2 className="text-lg font-semibold mb-4 text-[#e6edf3] border-b border-[#30363d] pb-3">
+            Profile Preview
+          </h2>
           <div className="flex flex-col items-center justify-center flex-grow">
             {formData.profilePic ? (
               <img
@@ -338,10 +362,12 @@ const Profile: React.FC<ProfileProps> = ({ repositories }) => {
               </div>
             )}
             <div className="text-center">
-              <p className="text-sm text-[#7d8590]">GitHub Contributions Rank</p>
+              <p className="text-sm text-[#7d8590]">
+                GitHub Contributions Rank
+              </p>
               <div className="mt-1 bg-[#0d1117] border border-[#30363d] rounded-md px-3 py-1 inline-block">
                 <span className="font-semibold text-[#e6edf3]">
-                  {contributorRank ? `#${contributorRank}` : 'Not ranked'}
+                  {contributorRank ? `#${contributorRank}` : "Not ranked"}
                 </span>
               </div>
             </div>
@@ -351,11 +377,13 @@ const Profile: React.FC<ProfileProps> = ({ repositories }) => {
 
       <div className="grid md:grid-cols-2 gap-6 mb-8">
         <div className="bg-[#161b22] p-5 rounded-lg border border-[#30363d]">
-          <h2 className="text-lg font-semibold mb-4 text-[#e6edf3] border-b border-[#30363d] pb-3">Contribution Heatmap</h2>
+          <h2 className="text-lg font-semibold mb-4 text-[#e6edf3] border-b border-[#30363d] pb-3">
+            Contribution Heatmap
+          </h2>
           {formData.githubId ? (
             <div className="p-2">
-              <ContributionGraph 
-                username={formData.githubId} 
+              <ContributionGraph
+                username={formData.githubId}
                 colorScheme="dark"
                 blockSize={12}
                 blockMargin={4}
@@ -370,33 +398,40 @@ const Profile: React.FC<ProfileProps> = ({ repositories }) => {
         </div>
 
         <div className="bg-[#161b22] p-5 rounded-lg border border-[#30363d]">
-          <h2 className="text-lg font-semibold mb-4 text-[#e6edf3] border-b border-[#30363d] pb-3">Contribution Breakdown</h2>
+          <h2 className="text-lg font-semibold mb-4 text-[#e6edf3] border-b border-[#30363d] pb-3">
+            Contribution Breakdown
+          </h2>
           <div className="h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie 
-                  data={pieData} 
-                  dataKey="value" 
-                  nameKey="name" 
-                  cx="50%" 
-                  cy="50%" 
-                  outerRadius={60} 
+                <Pie
+                  data={pieData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={60}
                   innerRadius={30}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) =>
+                    `${name} ${(percent * 100).toFixed(0)}%`
+                  }
                   labelLine={false}
                 >
                   {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={pieColors[index % pieColors.length]}
+                    />
                   ))}
                 </Pie>
-                <Tooltip 
+                <Tooltip
                   contentStyle={{
-                    background: '#161b22',
-                    borderColor: '#30363d',
-                    borderRadius: '6px',
-                    color: '#e6edf3'
+                    background: "#161b22",
+                    borderColor: "#30363d",
+                    borderRadius: "6px",
+                    color: "#e6edf3",
                   }}
-                  itemStyle={{ color: '#e6edf3' }}
+                  itemStyle={{ color: "#e6edf3" }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -406,12 +441,16 @@ const Profile: React.FC<ProfileProps> = ({ repositories }) => {
 
       <div className="bg-[#161b22] p-5 rounded-lg border border-[#30363d] mb-8">
         <div className="flex justify-between items-center mb-4 border-b border-[#30363d] pb-3">
-          <h2 className="text-lg font-semibold text-[#e6edf3]">Activity Over Time</h2>
+          <h2 className="text-lg font-semibold text-[#e6edf3]">
+            Activity Over Time
+          </h2>
           <div className="flex space-x-1 bg-[#0d1117] rounded-md p-1 border border-[#30363d]">
             {["commits", "issues", "prs"].map((type) => (
               <button
                 key={type}
-                onClick={() => setLineChartType(type as "commits" | "issues" | "prs")}
+                onClick={() =>
+                  setLineChartType(type as "commits" | "issues" | "prs")
+                }
                 className={`px-3 py-1 rounded-md text-xs ${
                   lineChartType === type
                     ? "bg-[#1f6feb] text-white"
@@ -426,32 +465,28 @@ const Profile: React.FC<ProfileProps> = ({ repositories }) => {
         <div className="h-[250px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={lineChartData[lineChartType]}>
-              <XAxis 
-                dataKey="date" 
+              <XAxis dataKey="date" stroke="#7d8590" tick={{ fontSize: 12 }} />
+              <YAxis
+                allowDecimals={false}
                 stroke="#7d8590"
                 tick={{ fontSize: 12 }}
               />
-              <YAxis 
-                allowDecimals={false} 
-                stroke="#7d8590"
-                tick={{ fontSize: 12 }}
-              />
-              <Tooltip 
+              <Tooltip
                 contentStyle={{
-                  background: '#161b22',
-                  borderColor: '#30363d',
-                  borderRadius: '6px',
-                  color: '#e6edf3'
+                  background: "#161b22",
+                  borderColor: "#30363d",
+                  borderRadius: "6px",
+                  color: "#e6edf3",
                 }}
-                itemStyle={{ color: '#e6edf3' }}
+                itemStyle={{ color: "#e6edf3" }}
               />
-              <Line 
-                type="monotone" 
-                dataKey="count" 
-                stroke="#1f6feb" 
-                strokeWidth={2} 
-                dot={{ fill: '#1f6feb', r: 3 }}
-                activeDot={{ fill: '#56d364', r: 5 }}
+              <Line
+                type="monotone"
+                dataKey="count"
+                stroke="#1f6feb"
+                strokeWidth={2}
+                dot={{ fill: "#1f6feb", r: 3 }}
+                activeDot={{ fill: "#56d364", r: 5 }}
               />
             </LineChart>
           </ResponsiveContainer>

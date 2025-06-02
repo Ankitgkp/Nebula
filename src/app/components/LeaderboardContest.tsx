@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import Image from "next/image";
 
-// Define a type for contributors
 interface Contributor {
   login: string;
   count: number;
@@ -40,59 +39,74 @@ function LeaderboardContest() {
       try {
         let page = 1;
         let allPRs: any[] = [];
-        const headers: Record<string, string> = {};
-        if (process.env.NEXT_PUBLIC_GITHUB_TOKEN) {
-          headers["Authorization"] =
-            `token ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`;
+        const headers: Record<string, string> = {
+          Accept: "application/vnd.github+json",
+        };
+
+        const token = process.env.NEXT_PUBLIC_GITHUB_TOKEN;
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        } else {
+          console.warn("GitHub token not found in environment variables");
         }
+
         while (true) {
           const res = await fetch(
             `https://api.github.com/repos/SASTxNST/Website_SAST/pulls?state=all&per_page=100&page=${page}`,
             { headers }
           );
+
+          if (!res.ok) {
+            const errorText = await res.text();
+            throw new Error(`GitHub API error: ${res.status} - ${errorText}`);
+          }
+
           const prs: any[] = await res.json();
           if (!Array.isArray(prs) || prs.length === 0) break;
           allPRs = allPRs.concat(prs);
           if (prs.length < 100) break;
           page++;
         }
-        // Count PRs per user
+
         const prCount: Record<string, number> = {};
         const userInfo: Record<string, { avatar: string; html_url: string }> =
           {};
+
         allPRs.forEach((pr) => {
-          if (pr.user && pr.user.login) {
-            const login = pr.user.login as string;
+          const login = pr.user?.login;
+          if (login) {
             prCount[login] = (prCount[login] || 0) + 1;
             if (!userInfo[login]) {
               userInfo[login] = {
-                avatar: pr.user.avatar_url,
-                html_url: pr.user.html_url,
+                avatar: pr.user.avatar_url || "",
+                html_url: pr.user.html_url || "#",
               };
             }
           }
         });
-        // Convert to array and sort
+
         const sorted: Contributor[] = Object.entries(prCount)
           .map(([login, count]) => ({
             login,
-            count: count as number,
-            avatar: userInfo[login].avatar,
-            html_url: userInfo[login].html_url,
+            count,
+            avatar: userInfo[login]?.avatar || "",
+            html_url: userInfo[login]?.html_url || "#",
           }))
           .sort((a, b) => b.count - a.count);
+
         setContributors(sorted);
-      } catch (e) {
-        setError("Failed to fetch PR data from GitHub.");
+      } catch (e: any) {
+        console.error(e);
+        setError(e.message || "Failed to fetch PR data from GitHub.");
       }
       setLoading(false);
     }
+
     fetchPRContributors();
   }, []);
 
   if (!mounted) return null;
 
-  // Podium logic for top 3
   const podium = contributors.slice(0, 3);
 
   return (
@@ -111,27 +125,9 @@ function LeaderboardContest() {
         </div>
 
         {loading ? (
-          <div
-            style={{
-              color: "#fff",
-              margin: "2rem",
-              fontSize: "1.2rem",
-              textAlign: "center",
-            }}
-          >
-            Loading...
-          </div>
+          <div className="text-white text-center my-8 text-lg">Loading...</div>
         ) : error ? (
-          <div
-            style={{
-              color: "red",
-              margin: "2rem",
-              fontSize: "1.2rem",
-              textAlign: "center",
-            }}
-          >
-            {error}
-          </div>
+          <div className="text-red-500 text-center my-8 text-lg">{error}</div>
         ) : (
           <>
             <div className="leaderboard-podium">
@@ -228,10 +224,7 @@ function LeaderboardContest() {
                           href={user.html_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          style={{
-                            color: "#3182ce",
-                            textDecoration: "underline",
-                          }}
+                          className="text-blue-500 underline"
                         >
                           Profile
                         </a>

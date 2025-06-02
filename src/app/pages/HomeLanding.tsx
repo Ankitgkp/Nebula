@@ -180,6 +180,8 @@ const HomeLanding: React.FC = () => {
               <Image
                 src={card.image}
                 alt={card.title}
+                width={400}
+                height={256}
                 className="w-full h-64 object-cover"
               />
               <div className="p-6">

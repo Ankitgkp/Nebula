@@ -25,7 +25,8 @@ const TeamPage: React.FC = () => {
       name: "Kavya Katal",
       role: "MERN Developer",
       bio: "Dedicated to full-stack development with MERN, solving problems through code and creativity.",
-      photo: "https://avatars.githubusercontent.com/u/178926947?v=4",
+      photo:
+        "https://media.licdn.com/dms/image/v2/D4D03AQF3E70uzrTwAw/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1723708396458?e=1754524800&v=beta&t=urvxbMl0DmOTkGvL9EelHsXE0VAD-nSElLjbrr8V6oY",
     },
     {
       name: "Ankit Kumar Pandey",
@@ -73,7 +74,7 @@ const TeamPage: React.FC = () => {
     {
       name: "Param Kodhiyar",
       role: "Website Team",
-      bio: "Works on developing and maintaining the digital backbone of the project’s web presence.",
+      bio: "Works on developing and maintaining the digital backbone of the project's web presence.",
       photo:
         "https://scontent-sof1-2.cdninstagram.com/v/t51.2885-19/469386494_566828359423975_7909603751952130678_n.jpg?stp=dst-jpg_s160x160_tt6&_nc_cat=107&ccb=1-7&_nc_sid=bf7eb4&_nc_ohc=1KxEx9iW-kMQ7kNvwEw5ac_&_nc_oc=AdkvurIgou8t9KrfLCTO1X1jI4HeavVcS_8PqrhQPYL4AcRc88luaJyvGDdH2pWgOx8Wn8VNlLqM8s1VGluTEFxW&_nc_zt=24&_nc_ht=scontent-sof1-2.cdninstagram.com&oh=00_AfIyzra2D5ddPMfZDJvcJF_ir61vxr2vPM-n_F9WeSTa0A&oe=68428B67",
     },
@@ -130,8 +131,8 @@ const TeamPage: React.FC = () => {
             <Image
               src={member.photo}
               alt={member.name}
-              width={112} // <-- width set
-              height={112} // <-- height set
+              width={112}
+              height={112}
               className="rounded-full mb-6 border-2 border-white/20 object-cover"
             />
 
